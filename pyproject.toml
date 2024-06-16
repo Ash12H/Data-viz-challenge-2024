@@ -1,0 +1,30 @@
+[tool.poetry]
+name = "dataviz_app"
+version = "0.1.0"
+description = ""
+authors = ["Jules Lehodey <juleslehodey31320@hotmail.fr>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+jupyter = "^1.0.0"
+ipython = "^8.24.0"
+pandas = "^2.2.2"
+scipy = "^1.13.0"
+plotly = "^5.22.0"
+matplotlib = "^3.9.0"
+dash = "^2.17.0"
+geopandas = "^0.14.4"
+folium = "^0.16.0"
+mapclassify = "^2.6.1"
+dash-bootstrap-components = "^1.6.0"
+streamlit = "^1.35.0"
+streamlit-folium = "^0.20.0"
+streamlit-extras = "^0.4.3"
+dash-leaflet = "^1.0.15"
+ruff = "^0.4.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
