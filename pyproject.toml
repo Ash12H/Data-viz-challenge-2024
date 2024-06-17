@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Jules Lehodey <juleslehodey31320@hotmail.fr>"]
 readme = "README.md"
+packages = [{ include = "dataviz_app" }]
 
 [tool.poetry.dependencies]
 python = "^3.12"

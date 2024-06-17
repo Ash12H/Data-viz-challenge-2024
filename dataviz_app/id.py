@@ -1,0 +1,5 @@
+PACIFIC_MAP = "pacific_map"
+CHART = "chart"
+TITLE_ROW = "title_row"
+CONTENT_ROW = "content_row"
+MAIN_LAYOUT = "main_layout"
