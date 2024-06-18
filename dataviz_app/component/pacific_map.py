@@ -12,13 +12,13 @@ def pacific_map(data: pd.DataFrame, pacific_eez: gpd.GeoDataFrame) -> Figure:
         color="value",
         color_continuous_scale="Viridis",
     )
-    figure.update_coloraxes(
-        colorbar_orientation="h",
-        colorbar_x=0.5,
-        colorbar_y=-0.2,
-        colorbar_title="Value",
-        colorbar_title_side="top",
-    )
+    # figure.update_coloraxes(
+    #     colorbar_orientation="h",
+    #     colorbar_x=0.5,
+    #     colorbar_y=-0.2,
+    #     colorbar_title="Value",
+    #     colorbar_title_side="top",
+    # )
     figure.update_geos(
         fitbounds="locations",
         projection_type="equirectangular",

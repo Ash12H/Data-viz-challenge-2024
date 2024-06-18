@@ -4,15 +4,27 @@ import pandas as pd
 import numpy as np
 import dash_bootstrap_components as dbc
 
-from dataviz_app.id import PACIFIC_MAP, CHART, TITLE_ROW, CONTENT_ROW, MAIN_LAYOUT
+from dataviz_app.id import (
+    PACIFIC_MAP,
+    CHART,
+    CONTENT_ROW,
+    MAIN_LAYOUT,
+    PIE,
+    MAP_ROW,
+    MENU,
+)
 from dataviz_app.component.pacific_map import pacific_map
-from dataviz_app.component.chart import chart
+from dataviz_app.component.chart_educ import chart
+from dataviz_app.component.pie_unemploy import pie_unemploy
+from dataviz_app.component.country_charts import country_charts
+from dataviz_app.component.menu import menu
 
 
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP])
 
-# LOAD DATA
+# LOAD DATA-----------------------------------------------------------
 
+## 1. SHAPES
 pacific_eez = gpd.read_file(
     "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/shapes/2_clean/pacific_eez.geojson"
 )
@@ -21,8 +33,21 @@ df_pacific = pd.DataFrame(
     {"eez_id": pacific_eez.index, "value": np.random.rand(19) * 10}
 )
 
-ratio = pd.read_parquet(
-    "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/3_product/education_attainment_ratio.parquet"
+## 2. EDUCATION
+
+education = pd.read_parquet(
+    "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/3_product/education_attainment.parquet"
+)
+
+## 3. UNEMPLOYMED
+
+unemployed = pd.read_parquet(
+    "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/3_product/unemployed.parquet"
+)
+
+## 4. ALPHABETISATION
+alphabetisation = pd.read_parquet(
+    "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/3_product/alphabetisation.parquet"
 )
 
 # SETUP MAP -----------------------------------------------------------
@@ -31,13 +56,6 @@ map_figure = pacific_map(df_pacific, pacific_eez)
 
 
 # SETUP LAYOUT -----------------------------------------------------------
-
-title_div = html.Div(
-    children=[
-        html.H1(children="DataViz Challenge 2024"),
-    ],
-    style={"textAlign": "center", "backgroundColor": "blue"},
-)
 
 map_div = html.Div(
     children=[
@@ -50,63 +68,64 @@ map_div = html.Div(
     style={"justifyContent": "center", "backgroundColor": "red"},
 )
 
-text_div = html.Div(
-    children=[
-        html.P(
-            "Click or select multiple countries to get more information (double click to reset)."
-        ),
-    ],
-    style={"textAlign": "center"},
+
+# chart_div = chart(education=education, id_out=CHART, id_in=PACIFIC_MAP)
+
+# pie_div = pie_unemploy(unemployed_by_country=unemployed, id_out=PIE, id_in=PACIFIC_MAP)
+charts_div = country_charts(
+    unemployed=unemployed,
+    education=education,
+    alphabetisation=alphabetisation,
+    id_out=CHART,
+    id_in=PACIFIC_MAP,
 )
 
-chart_div = chart(ratio=ratio, id_in=PACIFIC_MAP, id_out=CHART)
-
-
-# CALLBACKS ---------------------------------------------------------------
+offcanvas = menu(id_out=MENU)
 
 
 # APP LAYOUT
 
 main_layout = html.Div(
     children=[
-        dbc.Row(id=TITLE_ROW, children=[title_div], style={"height": "10vh"}),
+        offcanvas,
+        dbc.Row(
+            id=MAP_ROW,
+            children=[map_div],
+            style={
+                "backgroundColor": "yellow",
+                "margin": "2%",
+                "padding": "2%",
+            },
+        ),
         dbc.Row(
             id=CONTENT_ROW,
             children=[
-                dbc.Col(
-                    children=[map_div, text_div],
-                    style={
-                        "maxHeight": "90vh",
-                        "maxWidth": "50wh",
-                        "margin": "0px",
-                        "padding": "0px",
-                        "backgroundColor": "yellow",
-                        "border": "5px dashed purple",
-                    },
-                ),
-                dbc.Col(
-                    children=[chart_div],
-                    style={
-                        "maxHeight": "90vh",
-                        "maxWidth": "50wh",
-                        "margin": "0px",
-                        "padding": "0px",
-                        "overflow": "scroll",
-                        "backgroundColor": "green",
-                        "border": "5px dashed red",
-                    },
-                ),
+                # dbc.Col(
+                #     children=[pie_div],
+                #     style={
+                #         "maxWidth": "50wh",
+                #         "backgroundColor": "yellow",
+                #         "border": "5px dashed purple",
+                #     },
+                # ),
+                # dbc.Col(
+                #     children=[chart_div],
+                #     style={
+                #         "maxWidth": "50wh",
+                #         "backgroundColor": "green",
+                #         "border": "5px dashed red",
+                #     },
+                # ),
+                dbc.Col(charts_div, style={"backgroundColor": "blue"})
             ],
         ),
     ],
     style={
-        "maxHeight": "100vh",
-        "maxWidth": "100wh",
         "margin": "0px",
         "padding": "0px",
         "backgroundColor": "pink",
         "border": "5px dashed blue",
-        "overflow": "hidden",
+        "overflow": "scroll",
     },
     id=MAIN_LAYOUT,
 )

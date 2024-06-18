@@ -39,7 +39,7 @@ def _chart_helper(ratio_country: pd.DataFrame, param: dict) -> Figure:
 
 
 def chart(ratio: pd.DataFrame, id_out: str, id_in: str) -> html.Div:
-    chart_div = html.Div(children=[], id=id_out, style={"backgroundColor": "purple"})
+    chart_div = html.Div(id=id_out, style={"backgroundColor": "purple"})
 
     @callback(
         Output(id_out, "children"),
@@ -63,6 +63,8 @@ def chart(ratio: pd.DataFrame, id_out: str, id_in: str) -> html.Div:
                     "textAlign": "center",
                     "margin": "100px",
                     "padding": "20px",
+                    "min-height": "200px",
+                    "min-width": "200px",
                     "border": "5px dashed #ccc",
                     "border-radius": "10px",
                     "background-color": "#f6f6f6",
@@ -82,19 +84,10 @@ def chart(ratio: pd.DataFrame, id_out: str, id_in: str) -> html.Div:
         nb_country = len(
             ratio_country["Pays et territoires insulaires du Pacifique"].unique()
         )
-        if nb_country < 3:
-            param = {
-                "height": max(500, 380 * nb_country),
-                "facet_row": "Pays et territoires insulaires du Pacifique",
-            }
-        else:
-            param = {
-                "height": max(500, 380 * (nb_country // 2 + nb_country % 2)),
-                "facet_col": "Pays et territoires insulaires du Pacifique",
-                "facet_col_wrap": 2,
-                "facet_col_spacing": 0.05,
-                "facet_row_spacing": 0.04,
-            }
+        param = {
+            "height": max(500, 380 * nb_country),
+            "facet_row": "Pays et territoires insulaires du Pacifique",
+        }
 
         graph = dcc.Graph(figure=_chart_helper(ratio_country, param))
 
