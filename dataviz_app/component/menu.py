@@ -32,6 +32,8 @@ def menu(id_out: str) -> html.Div:
                     "borderRadius": "50%",
                     "margin": "0px",
                     "padding": "0px",
+                    # in foreground
+                    "zIndex": "999",
                 },
             ),
             dbc.Offcanvas(

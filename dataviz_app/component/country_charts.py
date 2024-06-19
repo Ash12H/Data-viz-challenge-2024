@@ -1,14 +1,23 @@
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from dash import html, dcc, callback, Output, Input
+from dash import html, dcc, callback, Output, Input, State
 import pandas as pd
 import dash_bootstrap_components as dbc
+import dash_ag_grid
 
 
-def _helper_section_title() -> html.H2:
-    return html.H2(
-        "Informations sur le pays sélectionné", style={"textAlign": "center"}
+def _helper_chart_title(title: str) -> html.H4:
+    return html.H4(title, style={"textAlign": "center"})
+
+
+def _helper_no_data() -> dbc.Alert:
+    return dbc.Alert(
+        children=[
+            html.H4("No data available for this country."),
+        ],
+        color="warning",
+        style={"textAlign": "center", "margin": "auto", "width": "50%"},
     )
 
 
@@ -36,12 +45,12 @@ def __helper_chart_by_country_alphabetisation(
     ]
 
     if alph_sel.empty:
-        data = {"Femme": 0, "Homme": 0}
-    else:
-        data = {
-            "Femme": alph_sel["Femme"].values[0],
-            "Homme": alph_sel["Homme"].values[0],
-        }
+        return _helper_no_data()
+
+    data = {
+        "Femme": alph_sel["Femme"].values[0],
+        "Homme": alph_sel["Homme"].values[0],
+    }
 
     femme = go.Indicator(
         mode="number+delta",
@@ -66,9 +75,15 @@ def __helper_chart_by_country_alphabetisation(
     figure = make_subplots(
         rows=1, cols=2, specs=[[{"type": "indicator"}, {"type": "indicator"}]]
     )
+    figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0, "pad": 0})
     figure.add_trace(femme, row=1, col=1)
     figure.add_trace(homme, row=1, col=2)
-    return dcc.Graph(figure=figure)
+    return dcc.Graph(
+        figure=figure,
+        style={
+            "height": "20vh",
+        },
+    )
 
 
 def __helper_chart_by_country_education(
@@ -77,6 +92,9 @@ def __helper_chart_by_country_education(
     education_slice = education[
         education["Pays et territoires insulaires du Pacifique"] == country
     ]
+
+    if education_slice.empty:
+        return _helper_no_data()
 
     figure = px.bar(
         education_slice,
@@ -87,7 +105,7 @@ def __helper_chart_by_country_education(
         labels={"Value": "Total population"},
         range_y=[0, 100],
     )
-
+    figure.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0, "pad": 0})
     figure.for_each_annotation(
         lambda a: a.update(
             text=a.text.split("=")[-1],
@@ -107,7 +125,12 @@ def __helper_chart_by_country_education(
         line_color="black",
         annotation=dict(x=0.1, y=50, text="50%"),
     )
-    return dcc.Graph(figure=figure)
+    return dcc.Graph(
+        figure=figure,
+        style={
+            "height": "35vh",
+        },
+    )
 
 
 def __helper_chart_by_country_unemployed(
@@ -118,26 +141,16 @@ def __helper_chart_by_country_unemployed(
     ]
 
     if unemp_sel.empty:
-        return dbc.Alert(
-            children=[
-                html.H4(
-                    "No data available for this country.",
-                    style={
-                        # center the title in the alert
-                        "textAlign": "center",
-                        "margin": "auto",
-                        "backgroundColor": "red",
-                        # 40% padding top
-                        "paddingTop": "40%",
-                    },
-                ),
-            ],
-            color="warning",
-            style={"width": "100%", "height": "100%"},
-        )
-    unemployed_pie = px.pie(unemp_sel, names="Sexe", values="Pourcentage")
+        return _helper_no_data()
 
-    return dcc.Graph(figure=unemployed_pie)
+    unemployed_pie = px.pie(unemp_sel, names="Sexe", values="Pourcentage")
+    unemployed_pie.update_layout(margin={"r": 0, "t": 0, "l": 0, "b": 0, "pad": 0})
+    return dcc.Graph(
+        figure=unemployed_pie,
+        style={
+            "height": "20vh",
+        },
+    )
 
 
 def _helper_chart_by_country(
@@ -147,29 +160,38 @@ def _helper_chart_by_country(
     alphabetisation: pd.DataFrame,
 ) -> html.Div:
     # INDICATOR
+    title_alph = _helper_chart_title("Alphabétisation")
     alph_indicators = __helper_chart_by_country_alphabetisation(
         country, alphabetisation
     )
 
     # PIE
+    title_unemployed = _helper_chart_title("Chômage")
     unemployed_pie = __helper_chart_by_country_unemployed(country, unemployed)
 
     # BAR
-
+    title_education = _helper_chart_title("Éducation")
     education = __helper_chart_by_country_education(country, education)
 
-    return html.Div(
+    main_title = html.H3(
+        f"{country.capitalize()}",
+        style={"textAlign": "center"},
+    )
+
+    return dbc.Container(
         children=[
-            dbc.Row(html.H3(f"Indicateurs pour {country}")),
+            dbc.Row(main_title),
             dbc.Row(
                 [
-                    dbc.Col(alph_indicators),
-                    dbc.Col(unemployed_pie),
-                    dbc.Col(education),
-                ]
+                    dbc.Col([title_alph, alph_indicators], align="center", width=3),
+                    dbc.Col(
+                        [title_unemployed, unemployed_pie], align="center", width=4
+                    ),
+                    dbc.Col([title_education, education], align="center", width=5),
+                ],
             ),
         ],
-        style={"backgroundColor": "blue"},
+        fluid=True,
     )
 
 
@@ -178,25 +200,22 @@ def country_charts(
     education: pd.DataFrame,
     alphabetisation: pd.DataFrame,
     id_out: str,
-    id_in: str,
+    storage: str,
 ) -> html.Div:
-    charts_div = html.Div(id=id_out, style={"backgroundColor": "purple"})
+    charts_div = dbc.Container(
+        id=id_out, style={"backgroundColor": "purple"}, fluid=True
+    )
 
     @callback(
         Output(id_out, "children"),
-        Input(id_in, "clickData"),
-        Input(id_in, "selectedData"),
+        Input(storage, "data"),
     )
-    def update_charts_by_country(clickData, selectedData):
-        section_title = _helper_section_title()
+    def update_charts_by_country(data: list):
+        print("Log : Callback update_charts_by_country")
+        if not any(data.values()):
+            return _helper_empty()
 
-        if selectedData is None and clickData is None:
-            return section_title, _helper_empty()
-
-        if selectedData is not None:
-            countries = [i["location"] for i in selectedData["points"]]
-        elif clickData is not None:
-            countries = [clickData["points"][0]["location"]]
+        countries = [territory for territory, selected in data.items() if selected]
 
         unemployed_slice = unemployed[
             unemployed["Pays et territoires insulaires du Pacifique"].isin(countries)
@@ -216,6 +235,19 @@ def country_charts(
             )
             for country in countries
         ]
-        return section_title, html.Div(charts_children)
+        # Same but with a Hr between each
+        # charts_children = [
+        #     html.Div(
+        #         [
+        #             _helper_chart_by_country(
+        #                 country, unemployed_slice, education_slice, alphabetisation_slice
+        #             ),
+        #             html.Hr(),
+        #         ]
+        #     )
+        #     for country in countries
+        # ]
+
+        return html.Div(charts_children)
 
     return charts_div

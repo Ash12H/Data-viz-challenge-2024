@@ -3,24 +3,27 @@ import geopandas as gpd
 import pandas as pd
 import numpy as np
 import dash_bootstrap_components as dbc
+import dash_ag_grid
+
 
 from dataviz_app.id import (
     PACIFIC_MAP,
     CHART,
     CONTENT_ROW,
     MAIN_LAYOUT,
-    PIE,
     MAP_ROW,
     MENU,
+    # AGRID,
+    STORE,
 )
 from dataviz_app.component.pacific_map import pacific_map
-from dataviz_app.component.chart_educ import chart
-from dataviz_app.component.pie_unemploy import pie_unemploy
 from dataviz_app.component.country_charts import country_charts
 from dataviz_app.component.menu import menu
+from dataviz_app.component.agrid import agrid_territory
 
 
 app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP])
+
 
 # LOAD DATA-----------------------------------------------------------
 
@@ -28,10 +31,7 @@ app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP])
 pacific_eez = gpd.read_file(
     "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/shapes/2_clean/pacific_eez.geojson"
 )
-pacific_eez = pacific_eez.drop(columns=["index"]).set_index("pacific_island")
-df_pacific = pd.DataFrame(
-    {"eez_id": pacific_eez.index, "value": np.random.rand(19) * 10}
-)
+pacific_eez = pacific_eez.drop(columns=["index"])
 
 ## 2. EDUCATION
 
@@ -49,85 +49,75 @@ unemployed = pd.read_parquet(
 alphabetisation = pd.read_parquet(
     "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/3_product/alphabetisation.parquet"
 )
-
-# SETUP MAP -----------------------------------------------------------
-
-map_figure = pacific_map(df_pacific, pacific_eez)
-
+## 5. CLIENT STORAGE
+storage_data = {i: False for i in pacific_eez["pacific_island"]}
+storage = dcc.Store(id=STORE, data=storage_data)
 
 # SETUP LAYOUT -----------------------------------------------------------
+title_div = html.H1(
+    "Répartition des niveaux d'éducation atteints par genre et par territoire",
+    style={"textAlign": "center"},
+)
 
-map_div = html.Div(
-    children=[
-        html.H2(
-            "Répartition des niveaux d'éducation atteints par genre et par territoire",
-            style={"textAlign": "center"},
-        ),
-        dcc.Graph(figure=map_figure, id=PACIFIC_MAP),
-    ],
-    style={"justifyContent": "center", "backgroundColor": "red"},
+sub_title_div = html.H2(
+    "Informations sur le pays sélectionné",
+    style={"textAlign": "center"},
 )
 
 
-# chart_div = chart(education=education, id_out=CHART, id_in=PACIFIC_MAP)
+map_div = pacific_map(pacific_eez, id_out=PACIFIC_MAP, storage=STORE)
 
-# pie_div = pie_unemploy(unemployed_by_country=unemployed, id_out=PIE, id_in=PACIFIC_MAP)
 charts_div = country_charts(
     unemployed=unemployed,
     education=education,
     alphabetisation=alphabetisation,
     id_out=CHART,
-    id_in=PACIFIC_MAP,
+    storage=STORE,
 )
 
 offcanvas = menu(id_out=MENU)
 
+# agrid_div = agrid_territory(data=pacific_eez, id_out=AGRID, id_in=STORE)
 
 # APP LAYOUT
 
-main_layout = html.Div(
+main_layout = dbc.Container(
     children=[
         offcanvas,
+        storage,
         dbc.Row(
-            id=MAP_ROW,
-            children=[map_div],
-            style={
-                "backgroundColor": "yellow",
-                "margin": "2%",
-                "padding": "2%",
-            },
+            children=[
+                dbc.Col(
+                    title_div,
+                    align="center",
+                    style={
+                        "fontFamily": "Arial",
+                        "fontSize": "4em",
+                        "fontWeight": "bold",
+                        "textShadow": "2px 2px 4px rgba(0, 0, 0, 0.3)",
+                        "textAlign": "center",
+                        "marginTop": "20px",
+                        "marginBottom": "20px",
+                        "padding": "10px",
+                    },
+                )
+            ]
+        ),
+        dbc.Row(
+            children=[dbc.Col(map_div, id=MAP_ROW, align="center")],
+            style={"marginTop": "10px", "marginBottom": "10px"},
+        ),
+        dbc.Row(
+            children=[dbc.Col(sub_title_div, align="center")],
+            style={"marginTop": "10px", "marginBottom": "10px"},
         ),
         dbc.Row(
             id=CONTENT_ROW,
-            children=[
-                # dbc.Col(
-                #     children=[pie_div],
-                #     style={
-                #         "maxWidth": "50wh",
-                #         "backgroundColor": "yellow",
-                #         "border": "5px dashed purple",
-                #     },
-                # ),
-                # dbc.Col(
-                #     children=[chart_div],
-                #     style={
-                #         "maxWidth": "50wh",
-                #         "backgroundColor": "green",
-                #         "border": "5px dashed red",
-                #     },
-                # ),
-                dbc.Col(charts_div, style={"backgroundColor": "blue"})
-            ],
+            children=[dbc.Col(charts_div)],
         ),
     ],
-    style={
-        "margin": "0px",
-        "padding": "0px",
-        "backgroundColor": "pink",
-        "border": "5px dashed blue",
-        "overflow": "scroll",
-    },
     id=MAIN_LAYOUT,
+    fluid=True,
 )
 
 app.layout = main_layout
