@@ -10,26 +10,36 @@ def _helper_pacific_map(
 ):
     data = pacific_eez.set_index("pacific_island")
     data["Selected"] = selected
-    data = data.rename(
-        columns={"ile_du_pacifique": "Nom français"},
-        index={"pacific_island": "English name"},
-    )
+    data = data.rename(columns={"ile_du_pacifique": "Nom français"})
+    # rename index
+    data.index.name = "English name"
+
     figure = px.choropleth(
         data_frame=data,
         geojson=data.geometry,
         locations=data.index,
         color="Selected",
-        # color grey when select is False or blue
         color_discrete_map={False: "grey", True: "blue"},
-        hover_data={
-            "Nom français": True,
-            "Selected": False,
-        },
+        hover_data={"Nom français": True, "Selected": False},
     )
-    figure.update_layout(showlegend=False)
-    figure.update_geos(fitbounds="locations", projection_type="equirectangular")
-    figure.update_layout(margin={"r": 10, "t": 0, "l": 10, "b": 0, "pad": 0})
     figure.update_traces(marker_opacity=0.5)
+    figure.update_geos(
+        projection=dict(type="natural earth", scale=1, rotation=dict(lon=180)),
+        bgcolor="rgba(0,0,0,0)",
+        oceancolor="#4878AD",
+        landcolor="#F6BA45",
+        lakecolor="#4878AD",
+        showland=True,
+        showlakes=True,
+        showocean=True,
+        showcoastlines=True,
+    )
+    figure.update_layout(
+        showlegend=False,
+        margin=dict(l=0, r=0, t=0, b=0, pad=0, autoexpand=False),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+    )
 
     return figure
 
@@ -39,7 +49,13 @@ def pacific_map(pacific_eez: gpd.GeoDataFrame, id_out: str, storage: str) -> dcc
     map_div = dcc.Graph(
         figure=_helper_pacific_map(pacific_eez, selected=selected, id_out=id_out),
         id=id_out,
-        style={"justifyContent": "center", "backgroundColor": "red"},
+        style={
+            "justifyContent": "center",
+            "height": "70vh",
+            "width": "100%",
+            "margin": "0px",
+            "padding": "0px",
+        },
         config={"displayModeBar": False},
     )
 

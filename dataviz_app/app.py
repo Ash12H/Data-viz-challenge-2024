@@ -1,9 +1,7 @@
 from dash import Dash, html, dcc
 import geopandas as gpd
 import pandas as pd
-import numpy as np
 import dash_bootstrap_components as dbc
-import dash_ag_grid
 
 
 from dataviz_app.id import (
@@ -13,16 +11,14 @@ from dataviz_app.id import (
     MAIN_LAYOUT,
     MAP_ROW,
     MENU,
-    # AGRID,
     STORE,
 )
 from dataviz_app.component.pacific_map import pacific_map
 from dataviz_app.component.country_charts import country_charts
 from dataviz_app.component.menu import menu
-from dataviz_app.component.agrid import agrid_territory
 
 
-app = Dash(external_stylesheets=[dbc.themes.BOOTSTRAP, dbc.icons.BOOTSTRAP])
+app = Dash(external_stylesheets=[dbc.themes.DARKLY, dbc.icons.BOOTSTRAP])
 
 
 # LOAD DATA-----------------------------------------------------------
@@ -56,12 +52,27 @@ storage = dcc.Store(id=STORE, data=storage_data)
 # SETUP LAYOUT -----------------------------------------------------------
 title_div = html.H1(
     "Répartition des niveaux d'éducation atteints par genre et par territoire",
-    style={"textAlign": "center"},
+    style={
+        "textAlign": "center",
+        "fontFamily": "Georgia, serif",
+        "fontSize": "3em",
+        "letterSpacing": "-0.6px",
+        "wordSpacing": "0.6px",
+        "color": "#000000",
+        "fontWeight": "700",
+        "textDecoration": "none",
+        "fontStyle": "normal",
+        "fontVariant": "small-caps",
+        "textTransform": "capitalize",
+        # font color
+        "fontColor": "#0F0A31",
+    },
 )
 
 sub_title_div = html.H2(
     "Informations sur le pays sélectionné",
-    style={"textAlign": "center"},
+    className="fancy all_text",
+    style={"--b": "6px", "--w": "80px", "--g": "15px"},
 )
 
 
@@ -77,8 +88,6 @@ charts_div = country_charts(
 
 offcanvas = menu(id_out=MENU)
 
-# agrid_div = agrid_territory(data=pacific_eez, id_out=AGRID, id_in=STORE)
-
 # APP LAYOUT
 
 main_layout = dbc.Container(
@@ -86,38 +95,25 @@ main_layout = dbc.Container(
         offcanvas,
         storage,
         dbc.Row(
-            children=[
-                dbc.Col(
-                    title_div,
-                    align="center",
-                    style={
-                        "fontFamily": "Arial",
-                        "fontSize": "4em",
-                        "fontWeight": "bold",
-                        "textShadow": "2px 2px 4px rgba(0, 0, 0, 0.3)",
-                        "textAlign": "center",
-                        "marginTop": "20px",
-                        "marginBottom": "20px",
-                        "padding": "10px",
-                    },
-                )
-            ]
+            children=[dbc.Col(title_div, align="center", width=9, className="g-0")],
+            justify="center",
+            style={"height": "20vh"},
         ),
         dbc.Row(
-            children=[dbc.Col(map_div, id=MAP_ROW, align="center")],
-            style={"marginTop": "10px", "marginBottom": "10px"},
+            children=[dbc.Col(map_div, id=MAP_ROW, align="center", className="g-0")],
+            justify="center",
+            style={"height": "80vh"},
         ),
         dbc.Row(
-            children=[dbc.Col(sub_title_div, align="center")],
-            style={"marginTop": "10px", "marginBottom": "10px"},
+            children=[dbc.Col(sub_title_div, align="center", className="g-0")],
+            justify="center",
+            style={"height": "20vh"},
         ),
-        dbc.Row(
-            id=CONTENT_ROW,
-            children=[dbc.Col(charts_div)],
-        ),
+        dbc.Row(id=CONTENT_ROW, children=[charts_div], justify="center"),
     ],
     id=MAIN_LAYOUT,
     fluid=True,
+    style={"backgroundColor": "#FAFAFA"},
 )
 
 app.layout = main_layout

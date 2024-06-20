@@ -1,0 +1,71 @@
+@import url("https://fonts.googleapis.com/css?family=Montserrat:300,400,700");
+
+.fancy {
+    --b: 4px; /* control the border thickness */
+    --w: 50vw; /* control the width of the line*/
+    --g: 10px; /* control the gap */
+    --c: #2b0956;
+
+    width: fit-content;
+    padding: 0 1em;
+    line-height: 1.6em;
+    border: 1px solid;
+    color: #fff;
+    background: conic-gradient(from 45deg at left, var(--c) 25%, #0000 0) 0,
+        conic-gradient(from -135deg at right, var(--c) 25%, #0000 0) 100%;
+    background-size: 51% 100%;
+    background-origin: border-box;
+    background-repeat: no-repeat;
+    border-image: linear-gradient(
+            #0000 calc(50% - var(--b) / 2),
+            var(--c) 0 calc(50% + var(--b) / 2),
+            #0000 0
+        )
+        1/0 var(--w) / calc(var(--w) + var(--g));
+    margin-inline: auto;
+}
+
+.all_text {
+    text-align: center;
+    font-family: Georgia, serif;
+    /* font-size: 3em; */
+    letter-spacing: -0.6px;
+    word-spacing: 0.6px;
+    color: #fafafa;
+    font-weight: 700;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: small-caps;
+    text-transform: capitalize;
+}
+
+.container_chart {
+    background: #2b0956;
+    background: linear-gradient(180deg, #2b0956 0%, #7e1c86 100%);
+}
+
+/* -- SEAPARATOR WAVE -- */
+.separator {
+    width: 100vw;
+    height: 0vh;
+    display: flex;
+    /* justify-content: center; */
+    flex-direction: column;
+    position: relative;
+}
+.svg-separator {
+    display: block;
+    background: 0 0;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    z-index: 9;
+    -webkit-transform: translateY(-100%) translateY(2px);
+    transform: translateY(-100%) translateY(2px);
+    width: 100%;
+}
+.sep10 {
+    transform: translateY(-100%) translateY(2px) scale(1, 1);
+    transform-origin: top;
+}

@@ -676,6 +676,16 @@ files = [
 ]
 
 [[package]]
+name = "dash-dangerously-set-inner-html"
+version = "0.0.2"
+description = "A dash component for specifying raw HTML"
+optional = false
+python-versions = "*"
+files = [
+    {file = "dash_dangerously_set_inner_html-0.0.2.tar.gz", hash = "sha256:d7fe990755851fc4d2e22c8f10b7aea055cabf380bbceefba589779b269fea64"},
+]
+
+[[package]]
 name = "dash-html-components"
 version = "2.0.0"
 description = "Vanilla HTML components for Dash"
@@ -4187,4 +4197,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "936cdb93e3d7d06f3027dfd08b125a406f10e15a9ff7ce791138f3a088e74017"
+content-hash = "52eda276d41ab7964557b7118563d4aae1040fe5784418f2c289444c3fdbf210"
