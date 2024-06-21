@@ -247,16 +247,13 @@ def _helper_chart_by_country(
 
     return dbc.Container(
         children=[
-            separator_wave(),
+            html.Div(separator_wave()),
             html.Div(
                 [
                     dbc.Row(title_div),
                     dbc.Row(style={"height": "25px"}),
                     dbc.Row(
-                        [alph_div, education_div, unemployed_div],
-                        justify="evenly",
-                        style={"width": "90vw", "margin": "auto"},
-                        class_name="g-5",
+                        [alph_div, education_div, unemployed_div], justify="evenly"
                     ),
                     dbc.Row(style={"height": "100px"}),
                 ],
@@ -265,6 +262,12 @@ def _helper_chart_by_country(
         ],
         fluid=True,
         className="g-0",
+        style={
+            "background-color": "pink",
+            # "padding": "0px",
+            # "margin": "0px",
+            # "width": "100%",
+        },
     )
 
 

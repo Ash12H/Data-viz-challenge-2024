@@ -1,3 +1,8 @@
+body {
+    width: 100vw;
+    overflow-x: hidden;
+}
+
 .fancy {
     --b: 4px; /* control the border thickness */
     --w: 50vw; /* control the width of the line*/
@@ -50,25 +55,13 @@
 
 /* -- SEAPARATOR WAVE -- */
 .separator {
-    width: 100vw;
+    width: 100%;
     height: 0vh;
-    display: flex;
     flex-direction: column;
-    position: relative;
 }
 .svg-separator {
-    display: block;
-    background: 0 0;
-    position: absolute;
-    left: 0;
-    right: 0;
     top: 0;
     z-index: 9;
-    -webkit-transform: translateY(-100%) translateY(2px);
-    transform: translateY(-100%) translateY(2px);
-    width: 100%;
-}
-.sep10 {
     transform: translateY(-100%) translateY(2px) scale(1, 1);
     transform-origin: top;
 }
