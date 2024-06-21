@@ -1,21 +1,51 @@
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from dash import html, dcc, callback, Output, Input
+from dash import html, dcc, callback, Output, Input, no_update
 import pandas as pd
 import dash_bootstrap_components as dbc
 from dataviz_app.component.separator_wave import separator_wave
 
+SIZE_FONT = 20
+BAR_WIDTH = 500
+PIE_WIDTH = 300
+
+
+def _main_title(title) -> html.Div:
+    return html.H3(
+        title,
+        style={"--w": "0px", "--c": "#FAFAFA", "color": "#0F0A31", "font-size": "3em"},
+        className="fancy all_text",
+    )
+
 
 def _helper_chart_title(title: str) -> html.H4:
-    return html.H4(title, className="all_text")
+    return html.H4(
+        title,
+        className="header_graph",
+    )
 
 
 def _helper_no_data() -> dbc.Alert:
-    return dbc.Alert(
-        children=[html.H4("No data available for this country.")],
-        color="warning",
-        style={"textAlign": "center", "margin": "auto", "width": "50%"},
+    return html.Div(
+        html.P(
+            "No data",
+            style={
+                "textAlign": "center",
+                "fontSize": "1.5em",
+                "font-family": "Times New Roman",
+                "background-color": "rgba(0,0,0,0.5)",
+                "border-radius": "10px",
+                "display": "inline-block",
+                "padding": "10px",
+            },
+        ),
+        style={
+            # center content
+            "display": "flex",
+            "justify-content": "center",
+            "align-items": "center",
+        },
     )
 
 
@@ -34,20 +64,31 @@ def __helper_chart_by_country_alphabetisation(
         "Homme": alph_sel["Homme"].values[0],
     }
 
-    femme = go.Indicator(
-        mode="number+delta",
-        value=data["Femme"],
-        delta={"reference": data["Homme"], "relative": True, "valueformat": ".1%"},
-        title={"text": "Femme"},
-        number={"suffix": "%", "valueformat": ".1f"},
-    )
-    homme = go.Indicator(
-        mode="number+delta",
-        value=data["Homme"],
-        delta={"reference": data["Femme"], "relative": True, "valueformat": ".1%"},
-        title={"text": "Homme"},
-        number={"suffix": "%", "valueformat": ".1f"},
-    )
+    def _indicator_generator(value, reference, title):
+        return go.Indicator(
+            mode="number+delta",
+            value=value,
+            delta={
+                "reference": reference,
+                "relative": True,
+                "valueformat": ".1%",
+                "increasing": {"color": "#F6BA45"},
+                "decreasing": {"color": "#4878AD"},
+                "font": {"size": 30, "family": "Times New Roman"},
+            },
+            title={
+                "text": title,
+                "font": {"size": 40, "family": "Times New Roman"},
+            },
+            number={
+                "suffix": "%",
+                "valueformat": ".1f",
+                "font": {"size": 60, "family": "Times New Roman"},
+            },
+        )
+
+    femme = _indicator_generator(data["Femme"], data["Homme"], "Femme")
+    homme = _indicator_generator(data["Homme"], data["Femme"], "Homme")
     figure = make_subplots(
         rows=2,
         cols=1,
@@ -82,32 +123,43 @@ def __helper_chart_by_country_education(
         barmode="stack",
         range_y=[0, 100],
         template="plotly_dark",
+        color_discrete_map={"Femme": "#F6BA45", "Homme": "#4878AD"},
+        width=BAR_WIDTH,
     )
     figure.for_each_annotation(
         lambda a: a.update(
             text=a.text.split("=")[-1],
-            font=dict(family="Arial", size=14, color="rgb(50, 50, 50)", weight="bold"),
+            font=dict(
+                family="Times New Roman",
+                size=14,
+                color="rgb(50, 50, 50)",
+            ),
         )
     )
     figure.update_layout(
-        legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.25, orientation="h"),
+        legend=dict(
+            yanchor="top",
+            y=0.99,
+            xanchor="left",
+            x=0.25,
+            orientation="h",
+            font=dict(size=SIZE_FONT + 4, family="Times New Roman"),
+            title=None,
+        ),
         legend_xref="container",
         legend_yref="container",
         margin={"r": 0, "t": 0, "l": 0, "b": 0, "pad": 0},
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
-        # change grid color
-        yaxis=dict(gridcolor="#FAFAFA"),
-        xaxis=dict(gridcolor="#FAFAFA"),
-        font=dict(size=16, weight="bold"),
+        yaxis=dict(
+            gridcolor="#FAFAFA",
+            gridwidth=1,
+            tickvals=[0, 25, 50, 75, 100],
+            ticktext=["0%", "25%", "50%", "75%", "100%"],
+        ),
+        font=dict(size=SIZE_FONT, family="Times New Roman"),
     )
     figure.update_xaxes(title=None)
-    figure.add_hline(
-        y=50,
-        line_dash="dot",
-        line_color="black",
-        annotation=dict(x=0.1, y=50, text="50%"),
-    )
     return dcc.Graph(figure=figure)
 
 
@@ -126,18 +178,23 @@ def __helper_chart_by_country_unemployed(
         names="Sexe",
         values="Pourcentage",
         template="plotly_dark",
+        # set color
+        color_discrete_map={"Femme": "#F6BA45", "Homme": "#4878AD"},
+        color="Sexe",
+        width=PIE_WIDTH,
     )
     unemployed_pie.update_layout(
         legend=dict(
             yanchor="top",
-            y=0.99,
+            y=1.1,
             x=0.25,
-            orientation="h",
-            title="Genre",
+            orientation="v",
+            # title="Genre",
+            font=dict(size=SIZE_FONT + 4, family="Times New Roman"),
         ),
-        font=dict(size=16, weight="bold"),
-        legend_xref="container",
-        legend_yref="container",
+        font=dict(size=SIZE_FONT, family="Times New Roman"),
+        # legend_xref="container",
+        # legend_yref="container",
         margin={"r": 20, "t": 20, "l": 20, "b": 20},
         paper_bgcolor="rgba(0,0,0,0)",
     )
@@ -165,33 +222,27 @@ def _helper_chart_by_country(
     education = __helper_chart_by_country_education(country, education)
 
     # DIV
-    title_div = html.H3(
-        f"{country.capitalize()}",
-        style={"--w": "0px", "--c": "#433279"},
-        className="fancy all_text",
-    )
+    title_div = _main_title(country.capitalize())
 
     def centered_row(children, **kwargs) -> dbc.Row:
         return dbc.Row(
             children,
             justify="center",
             align="center",
-            style={"height": "80%", **kwargs},
+            style={**kwargs},
         )
 
     alph_div = dbc.Col(
         [dbc.Row(title_alph, justify="start"), centered_row(alph_indicators)],
-        width=2,
+        width="auto",
     )
     unemployed_div = dbc.Col(
-        [dbc.Row(title_unemployed), centered_row(unemployed_pie)], width=4
+        [dbc.Row(title_unemployed), centered_row(unemployed_pie)],
+        width="auto",
     )
     education_div = dbc.Col(
-        [
-            dbc.Row(title_education),
-            centered_row(education, padding="2% 0 0 0"),
-        ],
-        width=5,
+        [dbc.Row(title_education), centered_row(education)],
+        width="auto",
     )
 
     return dbc.Container(
@@ -203,8 +254,9 @@ def _helper_chart_by_country(
                     dbc.Row(style={"height": "25px"}),
                     dbc.Row(
                         [alph_div, education_div, unemployed_div],
-                        justify="center",
-                        style={"gap": "1vw", "width": "90vw", "margin": "auto"},
+                        justify="evenly",
+                        style={"width": "90vw", "margin": "auto"},
+                        class_name="g-5",
                     ),
                     dbc.Row(style={"height": "100px"}),
                 ],

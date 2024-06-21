@@ -4,18 +4,11 @@ import pandas as pd
 import dash_bootstrap_components as dbc
 
 
-from dataviz_app.id import (
-    PACIFIC_MAP,
-    CHART,
-    CONTENT_ROW,
-    MAIN_LAYOUT,
-    MAP_ROW,
-    MENU,
-    STORE,
-)
+from dataviz_app import id
 from dataviz_app.component.pacific_map import pacific_map
 from dataviz_app.component.country_charts import country_charts
 from dataviz_app.component.menu import menu
+from dataviz_app.component.arrow import animated_arrow
 
 
 app = Dash(external_stylesheets=[dbc.themes.DARKLY, dbc.icons.BOOTSTRAP])
@@ -47,7 +40,7 @@ alphabetisation = pd.read_parquet(
 )
 ## 5. CLIENT STORAGE
 storage_data = {i: False for i in pacific_eez["pacific_island"]}
-storage = dcc.Store(id=STORE, data=storage_data)
+storage = dcc.Store(id=id.STORE, data=storage_data)
 
 # SETUP LAYOUT -----------------------------------------------------------
 title_div = html.H1(
@@ -64,7 +57,6 @@ title_div = html.H1(
         "fontStyle": "normal",
         "fontVariant": "small-caps",
         "textTransform": "capitalize",
-        # font color
         "fontColor": "#0F0A31",
     },
 )
@@ -76,47 +68,79 @@ sub_title_div = html.H2(
 )
 
 
-map_div = pacific_map(pacific_eez, id_out=PACIFIC_MAP, storage=STORE)
+map_div = pacific_map(pacific_eez)
 
 charts_div = country_charts(
     unemployed=unemployed,
     education=education,
     alphabetisation=alphabetisation,
-    id_out=CHART,
-    storage=STORE,
+    id_out=id.CHART,
+    storage=id.STORE,
 )
 
-offcanvas = menu(id_out=MENU)
+offcanvas = menu(id_out=id.MENU)
 
 # APP LAYOUT
+
+## PART 1
+
+first_screen = dbc.Row(
+    dbc.Col(
+        [
+            dbc.Row(
+                children=[dbc.Col(title_div, align="center", width=9, className="g-0")],
+                justify="center",
+                style={"height": "20vh"},
+            ),
+            dbc.Row(
+                children=[dbc.Col(map_div, align="center", className="g-0")],
+                justify="center",
+                style={"height": "80vh"},
+            ),
+        ],
+        className="g-0",
+        align="center",
+    ),
+    style={"height": "100vh"},
+    justify="center",
+)
+
+## PART 2
+
+second_screen = dbc.Row(
+    dbc.Col(
+        [
+            dbc.Row(
+                children=[dbc.Col(sub_title_div, align="center", className="g-0")],
+                justify="center",
+                style={"minHeight": "20vh"},
+            ),
+            dbc.Row(
+                id=id.CONTENT_ROW,
+                children=[charts_div],
+                justify="center",
+            ),
+            animated_arrow(True),
+            animated_arrow(False),
+        ],
+        className="g-0",
+        align="center",
+    ),
+    justify="center",
+)
 
 main_layout = dbc.Container(
     children=[
         offcanvas,
         storage,
-        dbc.Row(
-            children=[dbc.Col(title_div, align="center", width=9, className="g-0")],
-            justify="center",
-            style={"height": "20vh"},
-        ),
-        dbc.Row(
-            children=[dbc.Col(map_div, id=MAP_ROW, align="center", className="g-0")],
-            justify="center",
-            style={"height": "80vh"},
-        ),
-        dbc.Row(
-            children=[dbc.Col(sub_title_div, align="center", className="g-0")],
-            justify="center",
-            style={"height": "20vh"},
-        ),
-        dbc.Row(id=CONTENT_ROW, children=[charts_div], justify="center"),
+        first_screen,
+        second_screen,
     ],
-    id=MAIN_LAYOUT,
+    id=id.MAIN_LAYOUT,
     fluid=True,
     style={"backgroundColor": "#FAFAFA"},
 )
 
 app.layout = main_layout
-
 if __name__ == "__main__":
     app.run_server(debug=True)

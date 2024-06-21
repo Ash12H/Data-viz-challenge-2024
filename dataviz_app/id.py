@@ -10,3 +10,5 @@ CONTENT_ROW = "content_row"
 CHART = "chart"
 PACIFIC_MAP = "pacific_map"
 AGRID = "agrid_territory"
+# ARROW
+ARROW = "arrow"

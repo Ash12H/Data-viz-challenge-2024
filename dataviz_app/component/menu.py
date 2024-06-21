@@ -2,6 +2,20 @@ from dash import html, callback
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 
+MENU_CONTENT = dbc.Container(
+    children=[
+        dbc.Row(html.H2("Map")),
+        dbc.Row(html.P("Map of the Pacific Ocean...")),
+        dbc.Row(html.H2("Charts")),
+        dbc.Row(html.H3("Alphabetisation")),
+        dbc.Row(html.P("Indicator...")),
+        dbc.Row(html.H3("Education")),
+        dbc.Row(html.P("Bar...")),
+        dbc.Row(html.H3("Unemployment")),
+        dbc.Row(html.P("Pie chart...")),
+    ]
+)
+
 
 def menu(id_out: str) -> html.Div:
     canvas_menu = html.Div(
@@ -37,10 +51,12 @@ def menu(id_out: str) -> html.Div:
                 },
             ),
             dbc.Offcanvas(
+                MENU_CONTENT,
                 id=id_out,
                 title="DataViz Challenge 2024",
                 is_open=False,
                 placement="top",
+                style={"height": "100vh", "width": "50vw", "overflowY": "auto"},
             ),
         ]
     )

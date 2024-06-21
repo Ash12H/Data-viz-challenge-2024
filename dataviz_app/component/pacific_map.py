@@ -3,11 +3,10 @@ import geopandas as gpd
 from dash import callback, Output, Input, State
 from dash import dcc
 import pandas as pd
+from dataviz_app import id
 
 
-def _helper_pacific_map(
-    pacific_eez: gpd.GeoDataFrame, selected: pd.Series, id_out: str
-):
+def _helper_pacific_map(pacific_eez: gpd.GeoDataFrame, selected: pd.Series):
     data = pacific_eez.set_index("pacific_island")
     data["Selected"] = selected
     data = data.rename(columns={"ile_du_pacifique": "Nom français"})
@@ -19,7 +18,7 @@ def _helper_pacific_map(
         geojson=data.geometry,
         locations=data.index,
         color="Selected",
-        color_discrete_map={False: "grey", True: "blue"},
+        color_discrete_map={False: "grey", True: "#433279"},
         hover_data={"Nom français": True, "Selected": False},
     )
     figure.update_traces(marker_opacity=0.5)
@@ -44,43 +43,39 @@ def _helper_pacific_map(
     return figure
 
 
-def pacific_map(pacific_eez: gpd.GeoDataFrame, id_out: str, storage: str) -> dcc.Graph:
+def pacific_map(pacific_eez: gpd.GeoDataFrame) -> dcc.Graph:
     selected = pd.Series({i: False for i in pacific_eez["pacific_island"]})
     map_div = dcc.Graph(
-        figure=_helper_pacific_map(pacific_eez, selected=selected, id_out=id_out),
-        id=id_out,
-        style={
-            "justifyContent": "center",
-            "height": "70vh",
-            "width": "100%",
-            "margin": "0px",
-            "padding": "0px",
-        },
+        figure=_helper_pacific_map(pacific_eez, selected=selected),
+        id=id.PACIFIC_MAP,
+        style={"height": "70vh", "margin": "0px", "padding": "0px"},
         config={"displayModeBar": False},
     )
 
     @callback(
-        Output(storage, "data"),
-        Input(id_out, "clickData"),
-        State(storage, "data"),
+        Output(id.STORE, "data"),
+        Input(id.PACIFIC_MAP, "clickData"),
+        State(id.STORE, "data"),
     )
     def update_storage(clickData, rowData: dict):
         print("Log : Callback update_storage")
         if clickData is None:
             return rowData
         territory = clickData["points"][0]["location"]
+        print(territory)
         if territory not in rowData:
             return rowData
-        rowData[territory] = ~rowData[territory]
+        rowData[territory] = False if rowData[territory] else True
+        print(rowData)
         return rowData
 
     @callback(
-        Output(id_out, "figure"),
-        Input(storage, "data"),
+        Output(id.PACIFIC_MAP, "figure"),
+        Input(id.STORE, "data"),
     )
     def update_content(data: dict):
         print("Log : Callback update_content")
         selected = pd.Series(data)
-        return _helper_pacific_map(pacific_eez, selected=selected, id_out=id_out)
+        return _helper_pacific_map(pacific_eez, selected=selected)
 
     return map_div

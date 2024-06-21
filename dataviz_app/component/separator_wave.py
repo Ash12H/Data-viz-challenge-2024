@@ -5,7 +5,8 @@ import dash_bootstrap_components as dbc
 
 def separator_wave(color=None, last_color=None) -> html.Div:
     if color is None:
-        color = ["#4E4E8E", "#433279", "#2B0956", "#4E4E8E", "#433279"]
+        color = ["#2B0956", "#F6BA45", "#433279", "#F6BA45", "#433279"]
+        # color = ["green", "red", "purple", "orange", "black"]
     if last_color is None:
         last_color = "#2B0956"
     wave = """
