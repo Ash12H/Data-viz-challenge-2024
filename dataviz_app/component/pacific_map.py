@@ -58,15 +58,12 @@ def pacific_map(pacific_eez: gpd.GeoDataFrame) -> dcc.Graph:
         State(id.STORE, "data"),
     )
     def update_storage(clickData, rowData: dict):
-        print("Log : Callback update_storage")
         if clickData is None:
             return rowData
         territory = clickData["points"][0]["location"]
-        print(territory)
         if territory not in rowData:
             return rowData
         rowData[territory] = False if rowData[territory] else True
-        print(rowData)
         return rowData
 
     @callback(
@@ -74,7 +71,6 @@ def pacific_map(pacific_eez: gpd.GeoDataFrame) -> dcc.Graph:
         Input(id.STORE, "data"),
     )
     def update_content(data: dict):
-        print("Log : Callback update_content")
         selected = pd.Series(data)
         return _helper_pacific_map(pacific_eez, selected=selected)
 

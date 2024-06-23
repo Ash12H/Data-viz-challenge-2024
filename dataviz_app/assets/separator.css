@@ -1,0 +1,15 @@
+.separator {
+    width: 100%;
+    height: 0vh;
+    flex-direction: column;
+}
+.svg-separator {
+    top: 0;
+    z-index: 9;
+    transform: translateY(-100%) translateY(2px) scale(1, 1);
+    transform-origin: top;
+}
+.container_chart {
+    background: #2b0956;
+    background: linear-gradient(180deg, #2b0956 0%, #6f1c86 100%);
+}

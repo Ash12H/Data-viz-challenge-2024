@@ -9,7 +9,7 @@ from dataviz_app.component.pacific_map import pacific_map
 from dataviz_app.component.country_charts import country_charts
 from dataviz_app.component.menu import menu
 from dataviz_app.component.arrow import animated_arrow
-
+from dataviz_app.component.overall_view import overall_view
 
 app = Dash(external_stylesheets=[dbc.themes.DARKLY, dbc.icons.BOOTSTRAP])
 
@@ -78,7 +78,11 @@ charts_div = country_charts(
     storage=id.STORE,
 )
 
-offcanvas = menu(id_out=id.MENU)
+offcanvas = menu()
+
+offcanvas_overall = overall_view(
+    alphabetisation=alphabetisation, education=education, unemployed=unemployed
+)
 
 # APP LAYOUT
 
@@ -132,6 +136,7 @@ second_screen = dbc.Row(
 main_layout = dbc.Container(
     children=[
         offcanvas,
+        offcanvas_overall,
         storage,
         first_screen,
         second_screen,

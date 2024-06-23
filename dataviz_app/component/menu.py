@@ -2,6 +2,8 @@ from dash import html, callback, dcc
 from dash.dependencies import Input, Output, State
 import dash_bootstrap_components as dbc
 
+from dataviz_app import id
+
 ENGLISH_CONTENT = """
     # Card            
     ---
@@ -67,50 +69,31 @@ MENU_CONTENT = dbc.Container(
 )
 
 
-def menu(id_out: str) -> html.Div:
+def menu() -> html.Div:
     canvas_menu = html.Div(
         [
             dbc.Button(
-                children=html.I(
-                    className="bi bi-question-lg",
-                    style={
-                        "fontSize": "3em",
-                        "margin": "0px",
-                        "padding": "0px",
-                        "position": "relative",
-                        "top": "-11px",
-                    },
-                ),
+                children=[html.Span("Informations", className="button-menu-content")],
                 id="button_menu",
                 n_clicks=0,
-                style={
-                    "position": "fixed",
-                    "top": "10px",
-                    "left": "10px",
-                    "border": "none",
-                    "height": "50px",
-                    "width": "50px",
-                    "borderRadius": "50%",
-                    "margin": "0px",
-                    "padding": "0px",
-                    "zIndex": "999",
-                },
+                style={"position": "fixed", "top": "20px", "left": "10px"},
+                className="button-menu",
             ),
             dbc.Offcanvas(
                 MENU_CONTENT,
-                id=id_out,
+                id=id.MENU,
                 title="DataViz Challenge 2024",
                 is_open=False,
-                placement="top",
+                placement="end",
                 style={"height": "100vh", "width": "50vw", "overflowY": "auto"},
             ),
         ]
     )
 
     @callback(
-        Output(id_out, "is_open"),
+        Output(id.MENU, "is_open"),
         Input("button_menu", "n_clicks"),
-        [State(id_out, "is_open")],
+        [State(id.MENU, "is_open")],
     )
     def toggle_offcanvas(n1, is_open):
         if n1:
