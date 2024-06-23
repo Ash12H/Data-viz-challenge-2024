@@ -44,7 +44,7 @@ storage = dcc.Store(id=id.STORE, data=storage_data)
 
 # SETUP LAYOUT -----------------------------------------------------------
 title_div = html.H1(
-    "Répartition des niveaux d'éducation atteints par genre et par territoire",
+    "Youth access to education and employment by gender and territory in the Pacific",
     style={
         "textAlign": "center",
         "fontFamily": "Georgia, serif",
@@ -62,7 +62,7 @@ title_div = html.H1(
 )
 
 sub_title_div = html.H2(
-    "Informations sur le pays sélectionné",
+    "Information on selected territories",
     className="fancy all_text",
     style={"--b": "6px", "--w": "80px", "--g": "15px"},
 )

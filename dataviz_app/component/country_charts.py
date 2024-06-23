@@ -1,7 +1,7 @@
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from dash import html, dcc, callback, Output, Input, no_update
+from dash import html, dcc, callback, Output, Input
 import pandas as pd
 import dash_bootstrap_components as dbc
 from dataviz_app.component.separator_wave import separator_wave
@@ -9,6 +9,7 @@ from dataviz_app.component.separator_wave import separator_wave
 SIZE_FONT = 20
 BAR_WIDTH = 500
 PIE_WIDTH = 300
+PIE_HEIGHT = 300
 
 
 def _main_title(title) -> html.Div:
@@ -19,11 +20,8 @@ def _main_title(title) -> html.Div:
     )
 
 
-def _helper_chart_title(title: str) -> html.H4:
-    return html.H4(
-        title,
-        className="header_graph",
-    )
+def _helper_chart_title(title: str, style: dict = None) -> html.H4:
+    return html.H4(title, className="header_graph", style=style)
 
 
 def _helper_no_data() -> dbc.Alert:
@@ -87,8 +85,8 @@ def __helper_chart_by_country_alphabetisation(
             },
         )
 
-    femme = _indicator_generator(data["Femme"], data["Homme"], "Femme")
-    homme = _indicator_generator(data["Homme"], data["Femme"], "Homme")
+    femme = _indicator_generator(data["Femme"], data["Homme"], "Women")
+    homme = _indicator_generator(data["Homme"], data["Femme"], "Men")
     figure = make_subplots(
         rows=2,
         cols=1,
@@ -108,22 +106,39 @@ def __helper_chart_by_country_alphabetisation(
 def __helper_chart_by_country_education(
     country: str, education: pd.DataFrame
 ) -> dcc.Graph:
-    education_slice = education[
-        education["Pays et territoires insulaires du Pacifique"] == country
-    ]
+    education_slice = (
+        education[education["Pays et territoires insulaires du Pacifique"] == country]
+        .rename(columns={"Genre": "Gender", "Niveau d'éducation": "Education level"})
+        .replace({"Femme": "Women", "Homme": "Men"})
+    )
+
+    education_slice = education_slice.replace(
+        {
+            "Petite enfance": "Kindergarten",
+            "Primaire": "Primary",
+            "Secondaire inf.": "Lower secondary",
+            "Secondaire sup.": "Upper secondary",
+            "Post-sec. non sup.": "Post-sec non-tertiary",
+            "Tertiaire": "Tertiary",
+            "Non indiqué": "Not specified",
+            "Total": "Total",
+        }
+    )
 
     if education_slice.empty:
         return _helper_no_data()
 
+    education_slice = education_slice
+
     figure = px.bar(
         education_slice,
-        x="Niveau d'éducation",
+        x="Education level",
         y="Ratio",
-        color="Genre",
+        color="Gender",
         barmode="stack",
         range_y=[0, 100],
         template="plotly_dark",
-        color_discrete_map={"Femme": "#F6BA45", "Homme": "#4878AD"},
+        color_discrete_map={"Women": "#F6BA45", "Men": "#4878AD"},
         width=BAR_WIDTH,
     )
     figure.for_each_annotation(
@@ -166,39 +181,46 @@ def __helper_chart_by_country_education(
 def __helper_chart_by_country_unemployed(
     country: str, unemployed: pd.DataFrame
 ) -> dcc.Graph:
-    unemp_sel = unemployed[
-        unemployed["Pays et territoires insulaires du Pacifique"] == country
-    ]
+    unemp_sel = (
+        unemployed[unemployed["Pays et territoires insulaires du Pacifique"] == country]
+        .rename(columns={"Sexe": "Gender"})
+        .replace({"Femme": "Women", "Homme": "Men"})
+    )
 
     if unemp_sel.empty:
         return _helper_no_data()
 
     unemployed_pie = px.pie(
         unemp_sel,
-        names="Sexe",
+        names="Gender",
         values="Pourcentage",
         template="plotly_dark",
-        # set color
-        color_discrete_map={"Femme": "#F6BA45", "Homme": "#4878AD"},
-        color="Sexe",
+        color_discrete_map={"Women": "#F6BA45", "Men": "#4878AD"},
+        color="Gender",
         width=PIE_WIDTH,
+        height=PIE_HEIGHT,
     )
     unemployed_pie.update_layout(
         legend=dict(
             yanchor="top",
-            y=1.1,
-            x=0.25,
-            orientation="v",
-            # title="Genre",
+            y=0,
+            x=0.15,
+            orientation="h",
             font=dict(size=SIZE_FONT + 4, family="Times New Roman"),
         ),
         font=dict(size=SIZE_FONT, family="Times New Roman"),
-        # legend_xref="container",
-        # legend_yref="container",
-        margin={"r": 20, "t": 20, "l": 20, "b": 20},
+        margin={"t": 20, "r": 0, "b": 0, "l": 0, "pad": 0},
         paper_bgcolor="rgba(0,0,0,0)",
     )
-    return dcc.Graph(figure=unemployed_pie)
+    return dcc.Graph(
+        figure=unemployed_pie,
+        style={
+            "padding": "0px",
+            "margin": "0px",
+            "width": "fit-content",
+            "height": "fit-content",
+        },
+    )
 
 
 def _helper_chart_by_country(
@@ -208,17 +230,20 @@ def _helper_chart_by_country(
     alphabetisation: pd.DataFrame,
 ) -> html.Div:
     # INDICATOR
-    title_alph = _helper_chart_title("Alphabétisation")
+    title_alph = _helper_chart_title("Youth literacy rate")
     alph_indicators = __helper_chart_by_country_alphabetisation(
         country, alphabetisation
     )
 
     # PIE
-    title_unemployed = _helper_chart_title("Chômage")
+    title_unemployed = _helper_chart_title(
+        "Youth not in education employment or training",
+        style={"width": "400px"},
+    )
     unemployed_pie = __helper_chart_by_country_unemployed(country, unemployed)
 
     # BAR
-    title_education = _helper_chart_title("Éducation")
+    title_education = _helper_chart_title("Education attainment")
     education = __helper_chart_by_country_education(country, education)
 
     # DIV
@@ -262,12 +287,6 @@ def _helper_chart_by_country(
         ],
         fluid=True,
         className="g-0",
-        style={
-            "background-color": "pink",
-            # "padding": "0px",
-            # "margin": "0px",
-            # "width": "100%",
-        },
     )
 
 
