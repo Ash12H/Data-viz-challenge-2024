@@ -16,31 +16,22 @@ app = Dash(
     external_stylesheets=[dbc.themes.DARKLY, dbc.icons.BOOTSTRAP],
 )
 
-
 # LOAD DATA-----------------------------------------------------------
 
 ## 1. SHAPES
-pacific_eez = gpd.read_file(
-    "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/shapes/2_clean/pacific_eez.geojson"
-)
+pacific_eez = gpd.read_file("../data/shapes/2_clean/pacific_eez.geojson")
 pacific_eez = pacific_eez.drop(columns=["index"])
 
 ## 2. EDUCATION
 
-education = pd.read_parquet(
-    "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/3_product/education_attainment.parquet"
-)
+education = pd.read_parquet("../data/3_product/education_attainment.parquet")
 
 ## 3. UNEMPLOYMED
 
-unemployed = pd.read_parquet(
-    "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/3_product/unemployed.parquet"
-)
+unemployed = pd.read_parquet("../data/3_product/unemployed.parquet")
 
 ## 4. ALPHABETISATION
-alphabetisation = pd.read_parquet(
-    "/Users/ash/Documents/Workspaces/Python/Data-viz-challenge-2024/data/3_product/alphabetisation.parquet"
-)
+alphabetisation = pd.read_parquet("../data/3_product/alphabetisation.parquet")
 ## 5. CLIENT STORAGE
 storage_data = {i: False for i in pacific_eez["pacific_island"]}
 storage = dcc.Store(id=id.STORE, data=storage_data)
