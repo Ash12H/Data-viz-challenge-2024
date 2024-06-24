@@ -11,7 +11,10 @@ from dataviz_app.component.menu import menu
 from dataviz_app.component.arrow import animated_arrow
 from dataviz_app.component.overall_view import overall_view
 
-app = Dash(external_stylesheets=[dbc.themes.DARKLY, dbc.icons.BOOTSTRAP])
+app = Dash(
+    name=__name__,
+    external_stylesheets=[dbc.themes.DARKLY, dbc.icons.BOOTSTRAP],
+)
 
 
 # LOAD DATA-----------------------------------------------------------
