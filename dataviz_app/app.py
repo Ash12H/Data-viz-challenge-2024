@@ -18,21 +18,18 @@ app = Dash(
 
 # LOAD DATA-----------------------------------------------------------
 
-## 1. SHAPES
-pacific_eez = gpd.read_file("../data/shapes/2_clean/pacific_eez.geojson")
-pacific_eez = pacific_eez.drop(columns=["index"])
+url_eez = "https://raw.githubusercontent.com/Ash12H/Data-viz-challenge-2024/main/data/shapes/2_clean/pacific_eez.geojson"
+url_education = "https://raw.githubusercontent.com/Ash12H/Data-viz-challenge-2024/main/data/3_product/education_attainment.parquet"
+url_unemployed = "https://raw.githubusercontent.com/Ash12H/Data-viz-challenge-2024/main/data/3_product/unemployed.parquet"
+url_alphabetisation = "https://raw.githubusercontent.com/Ash12H/Data-viz-challenge-2024/main/data/3_product/alphabetisation.parquet"
 
-## 2. EDUCATION
+pacific_eez = gpd.read_file(url_eez).drop(columns=["index"])
+education = pd.read_parquet(url_education)
+unemployed = pd.read_parquet(url_unemployed)
+alphabetisation = pd.read_parquet(url_alphabetisation)
 
-education = pd.read_parquet("../data/3_product/education_attainment.parquet")
+# CLIENT STORAGE -----------------------------------------------------------
 
-## 3. UNEMPLOYMED
-
-unemployed = pd.read_parquet("../data/3_product/unemployed.parquet")
-
-## 4. ALPHABETISATION
-alphabetisation = pd.read_parquet("../data/3_product/alphabetisation.parquet")
-## 5. CLIENT STORAGE
 storage_data = {i: False for i in pacific_eez["pacific_island"]}
 storage = dcc.Store(id=id.STORE, data=storage_data)
 
