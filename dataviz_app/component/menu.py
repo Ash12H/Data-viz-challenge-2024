@@ -26,6 +26,11 @@ ENGLISH_CONTENT = """
     - 📖 **Literacy**: The percentage of the population that can read and write.
     - 👩‍🏫 **Education**: The percentage of the population that has achieved a certain level of education.
     - 💼 **Activity**: The percentage of the population not in education, employment or training.
+    
+    # Overview
+    ---
+    
+    By clicking on the **overall** button, you can view the average for the selected territories.
 """
 
 FRENCH_CONTENT = """
@@ -50,6 +55,12 @@ FRENCH_CONTENT = """
     - 📖 **Alphabétisation** : Le pourcentage de la population qui sait lire et écrire.
     - 👩‍🏫 **Éducation** : Le pourcentage de la population qui a atteint un certain niveau d'éducation.
     - 💼 **Activité** : Le pourcentage de la population qui ne suit pas d'études, d'emploi ou de formation.
+    
+    # Vue d'ensemble
+    ---
+    
+    En cliquant sur le bouton **overall**, vous pouvez visualiser la moyenne des territoires sélectionnés.
+    
 """
 
 MENU_CONTENT = dbc.Container(
